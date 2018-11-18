@@ -20,6 +20,8 @@ def main():
     cursor.execute("SELECT * FROM reports")
     actors = list(cursor.fetchall())
 
+    print(actors[2]["reports"])
+        
     for i in range(len(actors)):
         currLink = actors[i]["link"]
         if(index.search(currLink)["hits"]):
