@@ -5,7 +5,7 @@ algoliasearch = require("algoliasearch");
 var client = algoliasearch("CBJLT1KBQH", "34a9f24952e53d2ae19791c40a508c24");
 
 var app = express();
-var temp=false;
+var temp=[];
 /*var sql = "IF EXISTS (SELECT * FROM Xlptx42_durhack.reports WHERE link="+request.body["link"]+
 		") UPDATE Xlptx42_durhack.reports SET reports= reports +1 WHERE link = "+request.body["link"]+
 		" ELSE"+
@@ -19,8 +19,8 @@ var con=mysql.createConnection({
 app.use(express.json());
 
 app.post('/report', function(request, response){
-  console.log(request.body);
-  response.send(request.body["MyKey"]);
+  console.log(request.body["link"]);
+  //response.send(request.body["MyKey"]);
   con.query("UPDATE reports SET reports = reports +1 WHERE link =  '"+request.body["link"]+"'", function (err, result) {
     if (err) throw err;
     //console.log("Result: " + result);
@@ -28,18 +28,22 @@ app.post('/report', function(request, response){
   con.query("SELECT reports FROM reports WHERE link='"+request.body["link"]+"'", function (err, result) {
     if (err) throw err;
     temp=result;
-  });
-  console.log(temp);
-  if(! temp){
+	//console.log(temp);
+	if(temp.length ==0){
 	con.query("INSERT INTO reports VALUES('"+request.body["link"]+"',1,0,0)", function (err, result) {
     if (err) throw err;
-  });
-  temp = false;
+	});
+  
   };
+  });
+  
+  temp = false;
 });
 
-app.post('/r', function(req, resp){
-  //console.log(req);
+app.post('/r', function(req, res){
+  console.log(req.body);
+  //console.log(res);
+  var resp= res;
   var links = req.body['links'];
   console.log(links);
   //var links = ["https://twitter.com", "https://google.com"];
@@ -52,21 +56,24 @@ app.post('/r', function(req, resp){
 
   for (x of links){
     queries.push({
-	indexName: 'database',
+	indexName: 'database2',
 	query: x
     });
   }
-
-  client.search(queries, function searchCallback(err, content,resp) {
-    if (err) throw err;
-
+  
+  client.search(queries, function searchCallback(err, content) {
+    console.log(content);
+	if (err) throw err;
+	
 	for(var i = 0; i < queries.length; i++){
-	linksArray.push(content.results[i].hits[0].link);
-	reportsArray.push(content.results[i].hits[0].reports);
+	  if (content.results[i].hits[0]){
+		linksArray.push(content.results[i].hits[0].link);
+		reportsArray.push(content.results[i].hits[0].reports);
+	  }
 	}
-
+	//console.log(reportsArray);
 	for(var i = 0; i < linksArray.length; i++){
-	  if(reportsArray[i] > 100){ //this is how we determine if a link is clickbait
+	  if(reportsArray[i] > 1){ //this is how we determine if a link is clickbait
 		newList.push(linksArray[i]);
       }
     }
