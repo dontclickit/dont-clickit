@@ -26,15 +26,13 @@ client.search(queries, function searchCallback(err, content) {
     }
 
     for(var i = 0; i < linksArray.length; i++){
-        if(reportsArray[i] > 2){
+        if(reportsArray[i] > 2){ //this is how we determine if a link is clickbait
             newList.push(linksArray[i]);
         }
     }
 
     console.log(newList);
-    return newList;
 });
 
 }
 
-clickBait();
